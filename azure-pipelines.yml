@@ -1,0 +1,41 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DATABASE_URL: 'postgres://postgres:postgres@localhost/test'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    sudo apt-get update
+    sudo apt-get -y install postgresql libpq-dev
+    echo "host    all             all             127.0.0.1/32            md5" > sudo tee -a /etc/postgresql/12.0/main/pg_hba.conf
+    sudo service postgresql restart
+    sleep 3
+    sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+    sudo service postgresql restart
+    sleep 3
+    sudo -u postgres psql -c "CREATE DATABASE test;"
+  displayName: 'Setup Postgres'
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'setup.py'
+  displayName: 'Running setup.py'
+
+- script: |
+    pip install pytest pytest-azurepipelines
+    pytest
+  displayName: 'pytest'
