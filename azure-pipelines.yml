@@ -10,8 +10,8 @@ variables:
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+    versionSpec: '3.6.9'
+  displayName: 'Use Python 3.6.9'
 
 - script: |
     python -m pip install --upgrade pip
