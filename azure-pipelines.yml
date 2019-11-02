@@ -14,11 +14,6 @@ steps:
   displayName: 'Use Python 3.6.9'
 
 - script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
-
-- script: |
     sudo apt-get update
     sudo apt-get -y install postgresql libpq-dev
     echo "host    all             all             127.0.0.1/32            md5" > sudo tee -a /etc/postgresql/12.0/main/pg_hba.conf
@@ -28,7 +23,13 @@ steps:
     sudo service postgresql restart
     sleep 3
     sudo -u postgres psql -c "CREATE DATABASE test;"
-  displayName: 'Setup Postgres'
+  displayName: 'Setting Up'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
 - task: PythonScript@0
   inputs:
     scriptSource: 'filePath'
